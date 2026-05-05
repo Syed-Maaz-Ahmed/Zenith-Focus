@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Zenith Flow — A beautiful ambient productivity timer with soundscapes to help you stay focused and relaxed.">
+    <title>Zenith Flow — Ambient Productivity Timer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+</head>
+<body>
+    <!-- Animated Background Orbs -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Floating Particles -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-icon">◉</span>
+                <span class="logo-text">Zenith Flow</span>
+            </div>
+            <button class="settings-btn" id="settings-toggle" aria-label="Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Mode Selector -->
+        <div class="mode-selector" id="mode-selector">
+            <button class="mode-btn active" data-mode="focus" id="mode-focus">
+                <span class="mode-icon">🎯</span>
+                <span class="mode-label">Focus</span>
+            </button>
+            <button class="mode-btn" data-mode="short" id="mode-short">
+                <span class="mode-icon">☕</span>
+                <span class="mode-label">Short Break</span>
+            </button>
+            <button class="mode-btn" data-mode="long" id="mode-long">
+                <span class="mode-icon">🌿</span>
+                <span class="mode-label">Long Break</span>
+            </button>
+            <div class="mode-slider" id="mode-slider"></div>
+        </div>
+
+        <!-- Timer Card -->
+        <div class="timer-card glass-card">
+            <div class="timer-ring-container">
+                <svg class="timer-ring" viewBox="0 0 260 260">
+                    <defs>
+                        <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" id="grad-stop-1" />
+                            <stop offset="100%" id="grad-stop-2" />
+                        </linearGradient>
+                    </defs>
+                    <circle class="ring-bg" cx="130" cy="130" r="120" />
+                    <circle class="ring-progress" id="ring-progress" cx="130" cy="130" r="120" />
+                </svg>
+                <div class="timer-display">
+                    <span class="timer-time" id="timer-display">25:00</span>
+                    <span class="timer-label" id="timer-label">Focus Time</span>
+                </div>
+            </div>
+
+            <!-- Timer Controls -->
+            <div class="timer-controls">
+                <button class="control-btn secondary" id="btn-reset" aria-label="Reset Timer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M1 4v6h6"></path>
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                </button>
+                <button class="control-btn primary" id="btn-start" aria-label="Start Timer">
+                    <svg class="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5,3 19,12 5,21"></polygon>
+                    </svg>
+                    <svg class="pause-icon hidden" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="5" y="3" width="4" height="18"></rect>
+                        <rect x="15" y="3" width="4" height="18"></rect>
+                    </svg>
+                </button>
+                <button class="control-btn secondary" id="btn-skip" aria-label="Skip to Next">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="5,4 15,12 5,20" fill="currentColor"></polygon>
+                        <line x1="19" y1="5" x2="19" y2="19"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Session Counter -->
+            <div class="session-counter">
+                <div class="session-dots" id="session-dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                <span class="session-text" id="session-text">Session 1 of 4</span>
+            </div>
+        </div>
+
+        <!-- Sound Mixer Card -->
+        <div class="sound-card glass-card">
+            <h2 class="card-title">
+                <span class="card-title-icon">🎧</span>
+                Ambient Sounds
+            </h2>
+            <div class="sound-grid" id="sound-grid">
+                <div class="sound-item" data-sound="rain">
+                    <button class="sound-toggle" id="sound-rain-btn" aria-label="Toggle Rain">
+                        <span class="sound-emoji">🌧️</span>
+                    </button>
+                    <span class="sound-name">Rain</span>
+                    <input type="range" class="sound-volume" id="sound-rain-vol" min="0" max="100" value="50" aria-label="Rain Volume">
+                </div>
+                <div class="sound-item" data-sound="fire">
+                    <button class="sound-toggle" id="sound-fire-btn" aria-label="Toggle Fire">
+                        <span class="sound-emoji">🔥</span>
+                    </button>
+                    <span class="sound-name">Fire</span>
+                    <input type="range" class="sound-volume" id="sound-fire-vol" min="0" max="100" value="50" aria-label="Fire Volume">
+                </div>
+                <div class="sound-item" data-sound="wind">
+                    <button class="sound-toggle" id="sound-wind-btn" aria-label="Toggle Wind">
+                        <span class="sound-emoji">🍃</span>
+                    </button>
+                    <span class="sound-name">Wind</span>
+                    <input type="range" class="sound-volume" id="sound-wind-vol" min="0" max="100" value="50" aria-label="Wind Volume">
+                </div>
+                <div class="sound-item" data-sound="waves">
+                    <button class="sound-toggle" id="sound-waves-btn" aria-label="Toggle Waves">
+                        <span class="sound-emoji">🌊</span>
+                    </button>
+                    <span class="sound-name">Waves</span>
+                    <input type="range" class="sound-volume" id="sound-waves-vol" min="0" max="100" value="50" aria-label="Waves Volume">
+                </div>
+                <div class="sound-item" data-sound="birds">
+                    <button class="sound-toggle" id="sound-birds-btn" aria-label="Toggle Birds">
+                        <span class="sound-emoji">🐦</span>
+                    </button>
+                    <span class="sound-name">Birds</span>
+                    <input type="range" class="sound-volume" id="sound-birds-vol" min="0" max="100" value="50" aria-label="Birds Volume">
+                </div>
+                <div class="sound-item" data-sound="cafe">
+                    <button class="sound-toggle" id="sound-cafe-btn" aria-label="Toggle Cafe">
+                        <span class="sound-emoji">☕</span>
+                    </button>
+                    <span class="sound-name">Café</span>
+                    <input type="range" class="sound-volume" id="sound-cafe-vol" min="0" max="100" value="50" aria-label="Cafe Volume">
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Stats -->
+        <div class="stats-card glass-card">
+            <h2 class="card-title">
+                <span class="card-title-icon">📊</span>
+                Today's Stats
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-sessions">0</span>
+                    <span class="stat-label">Sessions</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-minutes">0</span>
+                    <span class="stat-label">Minutes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="stat-streak">0</span>
+                    <span class="stat-label">Day Streak</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Motivational Quote -->
+        <div class="quote-container" id="quote-container">
+            <p class="quote-text" id="quote-text">"The secret of getting ahead is getting started."</p>
+            <span class="quote-author" id="quote-author">— Mark Twain</span>
+        </div>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <span>Built with 🔥 by <strong>Zenith Flow</strong></span>
+        </footer>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal glass-card">
+            <div class="modal-header">
+                <h2>⚙️ Settings</h2>
+                <button class="modal-close" id="settings-close" aria-label="Close Settings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="setting-label" for="setting-focus">Focus Duration (min)</label>
+                    <input type="number" class="setting-input" id="setting-focus" min="1" max="90" value="25">
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label" for="setting-short">Short Break (min)</label>
+                    <input type="number" class="setting-input" id="setting-short" min="1" max="30" value="5">
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label" for="setting-long">Long Break (min)</label>
+                    <input type="number" class="setting-input" id="setting-long" min="1" max="60" value="15">
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label" for="setting-rounds">Sessions before Long Break</label>
+                    <input type="number" class="setting-input" id="setting-rounds" min="2" max="10" value="4">
+                </div>
+                <div class="setting-group toggle-group">
+                    <label class="setting-label">Auto-start Breaks</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="setting-autobreak" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-group toggle-group">
+                    <label class="setting-label">Sound Notification</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="setting-sound" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-save" id="settings-save">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completion Toast -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✅</span>
+        <span class="toast-msg" id="toast-msg">Session complete!</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
