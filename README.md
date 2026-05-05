@@ -68,6 +68,18 @@ Zenith-Flow/
 
 ## 📸 Preview
 
+````carousel
+![Focus Mode](1.png)
+<!-- slide -->
+![Short Break](2.png)
+<!-- slide -->
+![Long Break](3.png)
+<!-- slide -->
+![Ambient Sounds & Stats](4.png)
+<!-- slide -->
+![Settings](5.png)
+````
+
 Open `index.html` in any modern browser to see the full experience.
 
 <p align="center">Built with 🔥 focus and ☕ caffeine</p>
